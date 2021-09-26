@@ -488,3 +488,27 @@ function someAbstractFunction(uint x);
 import "filename";
 import "github.com/ethereum/dapp-bin/library/iterable_mapping.sol";
 
+// 8. OTHER KEYWORDS
+
+// A. Selfdestruct
+// selfdestruct current contract, sending funds
+// to address (often creator)
+selfdestruct(SOME_ADDRESS);
+
+// removes storage/code from current/future blocks
+// helps thin clients, but previous data persists
+// in blockchain.
+
+// Common pattern, lets owner end the contract and
+// received remaining funds
+function remove() {
+    if(mssg.sender == creator) { // Only let
+        // the contract creator do this
+        selfdestruct(creator);
+    }
+}
+
+// May want to deactivate contract manually, rather
+// than selfdestruct (ehter sent to selfdestructed
+// contract is lost)
+
