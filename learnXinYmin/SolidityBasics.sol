@@ -665,3 +665,14 @@ sha256("def");
 // See security links at the end of this doc
 
 // 12. LOW LEVEL FUNCTIONS
+// call - low level, not often used, does not
+// provide type safety
+successBoolean = someContractAddress.call('function_name',
+'args1', 'arg2');
+
+// callcode - Code at target address executed
+// in *context* of calling contract provides
+// library functionality
+someContractAddres.callcode('function_name');
+
+// 13. STYLE NOTES
