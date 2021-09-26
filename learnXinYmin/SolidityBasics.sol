@@ -656,3 +656,12 @@ uint x = 5;
 sha3("ab", "cd");
 ripemd160("abc");
 sha256("def");
+
+// 11. SECURITY
+// Bugs can be disastrous in Ethereum contracts
+// - and even popular patterns in Solidity,
+// may be found to be antipatterns
+
+// See security links at the end of this doc
+
+// 12. LOW LEVEL FUNCTIONS
