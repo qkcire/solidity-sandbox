@@ -430,3 +430,61 @@ for(uint x = 0; x < refundAddressList.length; x++) {
 // push payments.
 
 // 7. OBJECTS/CONTRACTS
+// A. Calling external contract
+contract InfoFeed {
+    function info() payable returns (uint ret) {
+        return 42;
+    }
+}
+
+contract Consumer {
+    InfoFeed feed; // points to contract on blockchain
+
+    // Set feed to existing contract instance
+    function setFeed(address addr) {
+        // automatically cast, be careful;
+        // constructor is not called
+        feed = InfoFeed(addr);
+    }
+
+    // Set feed to new instance of contract
+    function createNewFeed() {
+        feed = new InfoFeed(); // new instance
+        // created; constructor called
+    }
+
+    function callFeed() {
+        // final parentheses call contract, can
+        // optionally add custom ether value
+        // or gas
+        feed.info.value(10).gas(800)();
+    }
+}
+
+// B. Inheritance
+// Order matters, last inherited contract (i.e.,
+// 'def') can override parts of previously 
+// inherited contracts
+contract MyContract is abc, def("a custom argument to def") {
+
+    // Override function
+    function z() {
+        if (msg.sender == owner) {
+            def.z(); // call overridden function
+            // from def
+            super.z(); // call immediate parent
+            // overridden function
+        }
+    }
+}
+
+// abstract function
+function someAbstractFunction(uint x);
+// cannot compiled, so used in base/abstract
+// contracts that are then implemented.
+
+// C. Import
+
+import "filename";
+import "github.com/ethereum/dapp-bin/library/iterable_mapping.sol";
+
