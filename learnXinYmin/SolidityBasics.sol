@@ -628,3 +628,31 @@ contract SomeOracle {
 // F. State Machines
 // see example below for State enum and inState modifier
 
+// 10. OTHER NATIVE FUNCTIONS
+
+// Currency units
+// Currency is defined using wei, smallest unit
+// of Ether
+uint minAmount = 1 wei;
+uint a = 1 finney; // 1 either = 1000 finney
+// Other units, see: http://ether.fund/tool/converter
+
+// Time units
+1 == 1 second
+1 minutes == 60 seconds
+
+// Can multiply a variable times unit, as units
+// are not stored in a variable
+uint x = 5;
+(x * 1 days); // 5 days
+
+// Careful about leap seconds/years with equality
+// statements for time
+// (instead, prefer greater than/less than)
+
+// Cryptography
+// All strings passed are concatenated before
+// hash action
+sha3("ab", "cd");
+ripemd160("abc");
+sha256("def");
