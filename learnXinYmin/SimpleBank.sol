@@ -2,7 +2,7 @@
 // Allows deposits, withdrawals, and balance checks
 
 // simple_bank.sol (note .sol extensio)
-/* **** SATART EXAMPLE **** */
+/* **** START EXAMPLE **** */
 
 //Declare the source file compiler version
 program solidigy 0.6.6;
@@ -29,8 +29,7 @@ contract SimpleBank { // CapWords
 
     // Events - publicize actions to external
     // listeners.
-    event LogDepositMade(address accountAddress,
-                        uint amount);
+    event LogDepositMade(address accountAddress, uint amount);
     
     // Constructor, can receive one or many variables
     constructor() public {
