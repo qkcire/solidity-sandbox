@@ -690,3 +690,20 @@ someContractAddres.callcode('function_name');
 // else should be place on own line
 
 // 14. NATSPEC COMMENTS
+// used for documentation, commenting, and
+// external UIs
+
+// Contract natspec = always above contract
+// definition
+/// @title Contract title
+/// @author Author name
+
+// Function natspec
+/// @notice information about what function
+///  does; shown when function to execute
+/// @dev Function documentation for developer
+
+// function parameter/return value natspace
+/// @param someParam Some description of what
+// the param does
+/// @return Description of the return value
