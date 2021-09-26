@@ -676,3 +676,17 @@ successBoolean = someContractAddress.call('function_name',
 someContractAddres.callcode('function_name');
 
 // 13. STYLE NOTES
+// Based on Python's PEP8 style guide
+// Full Style guide:
+// http://solidity.readthedocs.io/en/develop/style-guide.html
+
+// Quick summary:
+// 4 spaces for indentation
+// two lines separate contract declarations (and
+// other top level declarations)
+// Avoid extraneous spaces in parantheses
+// Can omit curly craces for one line statement
+// (if, for, etc)
+// else should be place on own line
+
+// 14. NATSPEC COMMENTS
