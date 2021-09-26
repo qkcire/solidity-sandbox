@@ -127,3 +127,272 @@ uint x = 5;
 (x, y) = (2, 7); // assign/swap multiple values
 
 // 2. DATA STRUCTURES
+// Arrays
+bytes32[5] nicknames; // static array
+bytes32[] names; // dynamic array
+uint newLength = names.push("John"); // adding
+// returns new length of the array
+// Length
+names.length; // get length
+names.length = 1; // lengths can be set (for
+// dynamic arrays in storage only)
+
+// multidimensional array
+uint x[][5]; // arr with 5 dynamic array elements
+// (opp order of most languages)
+
+// Dictionaries (any type of any other type)
+mapping (string => uint) public balances;
+balances["charles"] = 1;
+// balances["ada"] result is 0, all non-set key
+// values return zeroes
+// 'public' allows following from another contract
+contractName.balances("charles"); // returns 1
+// 'public' created a getter (but not setter)
+// like the following:
+function balances(string _account) returns (uint balance) {
+    return balances[_account];
+}
+
+// Nested mappings
+mapping (address => mapping (address => uint)) public custodians;
+
+// To delete
+delete balances["John"];
+delete balances; // sets all elements to 0
+
+// Unlike other languages, CANNOT iterate through
+// all alements in mapping, without knowing source
+// keys - can build data structure on top to do this.
+
+// Structs
+struct Bank {
+    address owner;
+    uint balance;
+}
+Bank b = Bank({
+    owner: msg.sender,
+    balance: 5
+});
+// or
+Bank c = Bank(msg.sender, 5);
+c. balance = 5; // set to new value
+delete b;
+// Sets to initial value, set all variables in
+// struct to 0, except mappings
+
+// Enums
+enum State { Created, Locked, Inactive }; // often
+// used for state machine
+State public state; // Declare variable from enum
+state = State.created;
+// enums can be explicitly converted to ints
+uint createdState = uint(State.Created); // 0
+
+// Data locations: Memory vs. storage vs. calldata
+// - all complex types (arrays, structs) have a
+// data location 'memory' does not persist, 
+// 'storage' does default is 'storage' for local
+// and state variables; 'memory' for func params
+// stack holds small local variables
+
+// for most types, can explicitly set which data
+// location to use
+
+// 3. Simple operators
+// Comparisons, bit operators and arithmetic
+// operators are provided
+// exponentiation: **
+// exclusive or: ^
+// bitwise negation: ~
+
+// 4. Global Variables of note
+// ** this **
+this; // address of contract life to transfer
+// remaining balance to party
+this.balance;
+this.someFunction(); // Calls func externally
+// via call, not via internal jump
+
+// ** msg - Current message received by the
+// contract ** **
+msg.sender; // address of sender
+msg.value; // amount of ether provided to this
+// contract in wei, the function should be
+// marked "payable"
+msg.data; // bytes, complete call data
+msg.gas; // remaining gas
+
+// ** tx = This transaction **
+tx.origin; // address of sender of the transaction
+tx.gasprice; // gas price of the transaction
+
+// ** block - information about current block **
+now; // current time (approximately), alias for
+// block.timestamp (uses Unix time) NOTE that
+// this can be manipulated by miners, so use carefully
+
+block.number; // current block number
+block.difficulty; // current block difficulty
+block.blockhash(1); // retursn bytes32, only works
+// for most recent 256 blocks
+block.gasLimit();
+
+// ** storage - persistent storage hash **
+storage['abc'] = 'def'; // maps 256 bits words
+
+// 5. FUNCTIONS AND MORE
+// A. Functions
+// Simple function
+function increment(uint x) return (uint) {
+    x += 1;
+    return x;
+}
+
+// Functions can return many arguments, and by
+// specifying returned arguments name don't
+// need to explicitly return
+function increment(uint x, uint y) returns (uint x, uint y) {
+    x += 1;
+    y += 1;
+}
+
+// Call previous function
+uint (a, b) = increment(1,1);
+
+// 'view' (alias for 'constant')
+// indicates that function does not/cannot change
+// persistent vars
+// View function execute locally, not on blockchain
+// NOTE: constant keyworld will soon be deprecated
+uint y = 1;
+
+function increment(uint x) view returns (uint x) {
+    x += 1;
+    y += 1; // this line would fail since y is a
+    // state variable and can't be changed in a
+    // view function
+}
+
+// 'pure' is more strict than 'view' or 
+// 'constant', and does not even allow reading
+// of state vars
+// The exact rules are more complicated, so
+// see more about view/pur:
+// http://solidity.readthedocs.io/en/develop/contracts.html#view-functions
+
+// 'Function Visibility specifiers'
+// These can be placed where 'view' is, including:
+// public - visible externally and internally (
+// default for function
+// external - only visible externally (including
+// a call made with this.)
+// private - only visible in the current contract
+// internal - only visible in current contract,
+// and those deriving from it.
+
+// Generally, a good idea to mark each function
+// explicitly
+
+// Functions hoisted - and can assign a function
+// to a variable.
+funciton a() {
+    var z = b;
+    b();
+}
+
+function b() {
+
+}
+
+// All functions that receive ether must be
+// marked 'payable'
+function depositEther() public payable {
+    balances[msg.sender] += msg.value;
+}
+
+// Prefer loops to recursion (max call stack
+// depth is 1024)
+// Also, don't set up loops that you haven't
+// bounded, as this can hit the gas limit
+
+// B. Events
+// Events are notify external parties; easy to
+// search and access events from outside blockchain
+// (with lightweight clients)
+// typically declare after contract parameters
+
+// Typically, capitalized - and add Log in front
+// to be explicit and prevent confusion with a
+// function call
+
+
+// Declare
+event LogSent(address indexed from, address indexed to, uint amount);
+// note capital first letter
+
+// Call
+LogSent(from, to, amount);
+
+/**
+For an external party (a contract or external
+entity), to watch using the Web3 Javascript 
+library:
+
+The following is Javascript code, not Solidity
+code
+Coin.LogSent().watch({}, '', function(error, result) {
+    if (!error) {
+        console.log("Coin transfer: " + 
+        result.args.amount +
+                " coins were sent from " +
+        result.args.from +
+                " to " + result.args.to + ".");
+            console.log("Balances now:\n" + 
+                "Sender: " +
+        Coin.balances.call(result.args.from) + 
+                "Receiver: " +
+        Coin.balances.call(result.args.to));
+    }
+})
+**/
+
+// Common paradigm for one contract to depend on
+// another (e.g., a contract that depends on
+// current exchange rate provided by another)
+
+// C. Modifiers
+// Modifiers validate inputs to functions such as
+// minimal balance or use auth;
+// Similar to guard clause in other languages
+
+// '_' (underscore) often included as last line
+// in body, and indicates function being called
+// should be placed there.
+modifier onlyAfter(uint _time) { require (now >= _time); _; }
+modifier onlyOwner { require(msg.sender == owner) _; }
+// commonly used with state machines
+modifier onlyIfStateA (State currState) {
+    require(currState == State.A) _; }
+}
+
+// Append right after function declaration
+function changeOWner(newOwner) {
+    onlyAfter(someTime)
+    onlyOwner()
+    onlyIfState(State.A) {
+        owner = newOwner;
+    }
+}
+
+// Underscore can be included before end of body,
+// but explicitly returning will skip, so use
+// carefully.
+modifier checkValue(uint amount) {
+    _;
+    if (msg.value > amount) {
+        uint amountToRefund = amount - msg.value;
+        msg.sender.transfer(amountToRefund);
+    }
+}
+
