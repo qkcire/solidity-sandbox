@@ -396,3 +396,37 @@ modifier checkValue(uint amount) {
     }
 }
 
+// 6. BRANCHING AND LOOPS
+
+// All basic logic blocks work - including
+// if/else, for, while, break, continue
+// return - but no switch
+
+// Syntax same as javascript, but no type 
+// conversion from non-boolean to boolean
+// (comparison operators must be used to get
+// the boolean val)
+
+// For loops that are determined by user behavior,
+// be careful - as contracts have a maximal amount
+// of gas for a block of code - and will fail
+// if that is exceeded.
+
+// For example:
+for(uint x = 0; x < refundAddressList.length; x++) {
+    refundAddressList[x].transfer(SOME_AMOUNT);
+}
+
+// Two errors above:
+// 1. A failure on transfer stops the loop from
+// completing, tying up money.
+// 2. This loop could be arbitrarily long
+// (based on the amount of users who need refunds),
+// and therefore may always fail as it exceeds the
+// max gas for a block.
+// Instead, you should let people withdraw 
+// individually from their subaccount, and mark
+// withdrawn e.g., favor pull payments over
+// push payments.
+
+// 7. OBJECTS/CONTRACTS
