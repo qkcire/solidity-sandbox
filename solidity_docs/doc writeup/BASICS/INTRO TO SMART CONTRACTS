@@ -385,7 +385,133 @@ INTRO TO SMART CONTRACTS
   in the current call frame.
 
  12. STORAGE, MEMORY, AND THE STACK
+  The Ethereum Virtual Machine has three areas where it can store
+  data: storage, memory and the stack, which are explained in the following
+  paragraphs.
+
+  Each account has a data area called storage, which is persistent
+  between function calls and transactions.
+  Storage is a key-value store that maps 256-bit words to 256-bit words.
+  It is not possible to enumerate storage from within a contract, it is
+  comparitavely costly to read and even more to initialise and modify
+  storage.
+  Because of this cost, you should minimize what you store in persistent
+  storage to what the contract needs to run. 
+  Store data like derived calculations, caching, and aggregates outside of the
+  contract.
+  A contract can either read nor write to any storage apart from its own.
+
+  The second data area is called memory, of which is a contract obtains
+  a freshly cleared instance for each message call.
+  Memory is linear and can be addressed at byte level, but reads are limited
+  to a width of 256 bits, while writes can be either 8 bits or 256 bits
+  wide. 
+  Memory is expanded by a word (256-bit), when accessing (either reading or
+  writing) a previously untouched memory word (i.e. any offset within a 
+  word).
+  At the time of expansion, the cost in gas must be paid.
+  Memory is more costly the larger it grows (it scales quadratically).
+ 
+ 13. INSTRUCTION SET
+  The instruction set of the EVM is kept minimal in order to avoid incorrect
+  or inconsistent implementations which could cause consensus problems.
+  All instructions operate on the basic data type, 256-bit words or on slices
+  of memory (or other byte arrays).
+  The usual arithmetic, bit, logal and comparison operations are present.
+  Conditional and unconditional jumps are possible.
+  Furthermore, contracts can access relevant properties of the current
+  block like its number and timestamp.
+
+  For a complete list, please the list of opcodes as part of the inline assembly
+  documentation.
+
+ 14. MESSAGE CALLS
+  Contracts can call other contracts or send Ether to non-contract accounts
+  by the means of message calls.
+  Message calls are similar to transactions, in that they have a source, a target,
+  data payload, Ether, gas and return data.
+  In fact, every transaction consists of a top-level message call which 
+  in turn can create further message calls.
+
+  A contract can decide how much of its remaining gas should be sent with
+  the inner message call and how much it wants to retain.
+  If an out-of-gas exception happens in the inner call (or any other exception),
+  this will be signaled by an error value put onto the stack.
+  In this case, only the gas sent together with the call is used up.
+  In solidity, the calling contract causes a manual exception by default in such
+  situations, so that exceptions "bubble up" the call stack.
+
+  As already said, the called contract (which can be the same as the caller) will
+  receive a freshly cleared instance of memory and has access to the call payload - 
+  which will be provided in a separate area called the calldata.
+  After it has finished execution, it can return data which will be stored at a
+  location in the caller's memory preallocated by the caller.
+  All such calls are fully synchronous.
+
+  Calls are limited to a depth of 1024, which means that for more complex operations,
+  loops should be preferred over recursive calls.
+  Furthermore, only 63/64th of the gas can be forwarded in a message call, which 
+  causes a depth limit of a little less than 1000 in practice.
+
+ 15. DELEGATECALL / CALLCODE AND LIBRARIES
+  There exists a special variant of a message call, named delegatecall which
+  is idential to a message call apart from the fact that the code at the
+  target address is executed in the context of the calling 
+  contract and msg.sender and msg.value do not change their values.
+
+  The means that a contract can dynamically load code from a different
+  address at runtime.
+  Storage, current address and balance still refer to the calling
+  contract, only the code is taken from the called address.
+
+  This makes it possible to implement the "library" feature in Solidity: 
+  Reusable library code that can be applied to a contract's strage, e.g. in
+  order to implement a complex data structure.
+
+ 16. LOGS
+  It is possible to store data in a specially indexed data structure that maps all
+  the way up to the block level.
+  This feature called logs is used by Solidity in order to 
+  implement events. 
+  Contracts cannot access log data after it has been created, but they 
+  can be efficiently accessed from outisde the blockchain.
+  Since some part of the log data is stored in bloom filters, it is possible
+  to search for this data in an efficient and cryptographically secure way
+  so network peers that do not download the whole blockchain (so-called "light
+  clients") can still find these logs.
+
+ 17. CREATE
+  Contracts can even create other contracts using a special opcode (i.e. they
+  do no simply call the zero address as a transaction would).
+  The only difference between these create calls and normal message calls is 
+  that the payload data is executed and the result stored as code and the
+  caller / creator receives the address of the new contract on the stack.
+
+ 18. DEACTIVATE AND SELF-DESTRUCT
+  The only way to remove code from the blockchain is when a contract at that 
+  address preforms the selfdestruct operation.
+  The remaining Ether stored at that address is sent to a designated target and
+  then the storage and code is removed from the state.
+  Removing the contract in theory sounds like a good idea, but is is potentially
+  dangerous, as if someone sends Ether to removed contracts, the Ether is forever
+  lost.
+
+  WARNING
+   Even if a contract is removed by selfdestruct, it is still part of the history
+   of the blockchain and probably retained by most Ethereum nodes.
+   So using selfdestruct is not the same as deleting data from a hard disk.
+
+  NOTE
+   Even if a contract's code does not contain a call to selfdrestruct, it can still
+   perform that operation using delegatecall or callcode.
+
+  If you want to deactivate your contracts, you should instead disable them by
+  changing some internal state which causes all functions to revert. 
+  This makes it impossible to use the contract, as it returns Ether immediately.
   
-  
+
+
+
+
 
 
