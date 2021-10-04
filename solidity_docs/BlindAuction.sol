@@ -66,5 +66,14 @@ contract BlindAuction {
   /// not the exact amount are ways to hide the real bid
   /// but still make the required deposit. The same
   /// address can place multiple bids.
-  
+  function bid(bytes32 blindedBid)
+    external
+    payable
+    onlyBefore(biddingEnd) {
+      bids[msg.sender].push(Bid({
+        blindedBid: blindedBid,
+        deposit: msg.value
+      }));
+    }
+
 }
