@@ -72,4 +72,21 @@ contract Ballot {
     voters[voter].weight = 1;
   }
 
+  /// Delegate your vote to the voter `to`.
+  function delegate(address to) external {
+    // Assigns reference
+    Voter storage sender = voters[msg.sender];
+    require(!sender.voted, "You already voted.");
+
+    require(to != msg.sender, "Self-delegation is disallowed.");
+
+    // Forward the delegation as long as
+    // `to` also delegated.
+    // In general, such loops are very dangerous,
+    // because if they run too long, they might
+    // need more gas than is available in a block.
+    // In this case, the delegation will not be executed,
+    //
+  }
+
 }
