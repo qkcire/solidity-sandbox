@@ -114,4 +114,20 @@ contract BlindAuction {
       }
       payable(msg.sender).transfer(refund);
   }
+
+  /// Withdraw a bid that was overbid.
+  function withdraw() external {
+    uint amount = pendingReturns[msg.sender];
+    if (amount > 0) {
+      // It is important to set this to zero because the
+      // recipient can call this function again as part of
+      // the receiving call before `transfer` returns (see
+      // the remark above about condition -> effects -> interaction).
+      pendingReturns[msg.sender] = 0;
+
+      payable(msg.sender).transfer(amount);
+    }
+  }
+
+  
 }
