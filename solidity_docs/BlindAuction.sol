@@ -96,6 +96,22 @@ contract BlindAuction {
       for (uint i = 0; i < lengtj; i += 1) {
         Bid storage bidToCheck = bids[msg.sender][i];
         (uint value, bool fake, bytes32 secret) =
+          (values[i], fakes[i], secrets[i]);
+        if (bidToCheck.blindedBid != keccak256(abi.encodePacked(value, fake, secret))) {
+          // Bid was not actually revealed.
+          // Do not refund deposit.
+          continue;
+        }
+        refund += bidToCheck.deposit;
+        if (!fake && bidToCheck.deposit >= value) {
+          if (placedBid(msg.sender, value)) {
+            refund -= value;
+          }
+        }
+        // Make it impossible for the sender to re-claim
+        // the same deposit.
+        bidToCheck.blindedBid = bytes32(0);
       }
+      payable(msg.sender).transfer(refund);
   }
 }
