@@ -111,4 +111,19 @@ contract Ballot {
     }
   }
 
+  /// Giver your vote (including votes delegated
+  /// to you) to proposal `proposal[proposal].name`.
+  function vote(uint proposal) exeternal {
+    Voter storage sender = voters[msg.sender];
+    require(sender.weight != 0, "Has no right to vote");
+    require(!sender.voted, "Already voted.");
+    sender.voted = true;
+    sender.vote = proposal;
+
+    // If `proposal` is out of the range of the array,
+    // this will throw automatically and rever all
+    // changes.
+    proposals[proposal].voteCount += sender.weight;
+  }
+
 }
