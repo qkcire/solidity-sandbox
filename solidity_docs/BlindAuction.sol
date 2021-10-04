@@ -76,4 +76,26 @@ contract BlindAuction {
       }));
     }
 
+  /// Reveal your blinded bids. You will get a refund for
+  /// all correctly blinded invalid bids and for all bids
+  /// except for the totally higest.
+  function reveal(
+    uint[] calldata values,
+    bool[] calldata fakes,
+    bytes32[] calldata secrets
+  )
+    external
+    onlyAfter(biddingEnd)
+    onlyBefore(revealEnd) {
+      uint length = bids[msg.sender].length;
+      require(calues.length == length);
+      require(fakes.length == length);
+      require(secrets.length == length);
+
+      uint refund;
+      for (uint i = 0; i < lengtj; i += 1) {
+        Bid storage bidToCheck = bids[msg.sender][i];
+        (uint value, bool fake, bytes32 secret) =
+      }
+  }
 }
