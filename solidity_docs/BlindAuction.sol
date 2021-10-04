@@ -13,7 +13,7 @@ contract BlindAuction {
 
   mapping(address => Bid[]) public bids;
 
-  address public highestBidder;
+  address public i;
   uint public highestBid;
 
   // Allowed withdrawals of previous bids
@@ -129,5 +129,32 @@ contract BlindAuction {
     }
   }
 
-  
+  /// End the auction and send the highest bid
+  /// to the beneficiary.
+  function auctionEnd()
+    external
+    onlyAfter(revealEnd) {
+      if (ended) revert AuctionEndAlreadyCalled();
+      emit AuctionEnded(highestBidder, highestBid);
+      ended = true;
+      beneficiary.transfer(highestBid);
+  }
+
+  // This is an "internal" function which means that it
+  // can only be called from the contract itself (or
+  // from derived contracts).
+  function placeBid(address bidder, uint value) internal
+    return (bool success) {
+      if (value <= highestBid) {
+        return false;
+      }
+      if (highestBidder != address(0)) {
+        // Refund the previously highest bidder.
+        pendingReturns[highestBidder] += highestBid;
+      }
+      highestBid = value;
+      highestBidder = bidder;
+      return true;
+    }
 }
+
