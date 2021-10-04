@@ -1,0 +1,70 @@
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity ^0.8.4;
+contract BlindAuction {
+  struct Bid {
+    bytes32 blindedBid;
+    uint deposit;
+  }
+
+  address payable public beneficiary;
+  uint public biddingEnd;
+  uint public recealEnd;
+  bool public ended;
+
+  mapping(address => Bid[]) public bids;
+
+  address public highestBidder;
+  uint public highestBid;
+
+  // Allowed withdrawals of previous bids
+  mapping(address => uint) pendingReturns;
+
+  even AuctionEnded(address winner, uint highestBid);
+
+  // Errors that describe failures.
+
+  /// The function has been called too early.
+  /// Try again at `time`.
+  error TooEarly(uint time);
+  /// The function has been called too late.
+  /// It cannot be called after `time`.
+  error TooLate(uint time);
+  /// The function auctionEnd has already been called.
+  error AuctionEndAlreadyCalled();
+
+  // Modifiers are a convenient way to validate inputs to
+  // functions. `onlyBefore` is applied to `bid` below:
+  // The new function body is the modifier's body where
+  // `_` is replaced by the old function body.
+  modifier onlyBefore(uint time) {
+    if (block.timestamp >= time) revert TooLate(time);
+    _;
+  }
+  modifier onlyAfter(uint time) {
+    if (block.timestamp <= time) revert TooEarly(time);
+    _;
+  }
+
+  constuctor(
+    uint biddingTime,
+    uint revealTime,
+    address payable beneficiaryAddress
+  ) {
+    beneficiary = beneficiaryAddress;
+    biddingEnd = block.timestamp + biddingTime;
+    revealEnd = biddingEnd + revealTime;
+  }
+
+  /// Place a blinded bid with `blindedBid` =
+  /// keccak256(abi.encodePacked(value, fake, secret)).
+  /// The sent ether is only refunded if the bid is
+  /// correctly revealed in the revealing phase. The 
+  /// bid is valid if the ether sent together with the
+  /// bid is at least "value" and "fake" is not true.
+  /// Setting "fake" to true and sending not the exact
+  /// amount are ways to hide the real bid but still
+  /// not the exact amount are ways to hide the real bid
+  /// but still make the required deposit. The same
+  /// address can place multiple bids.
+  
+}
